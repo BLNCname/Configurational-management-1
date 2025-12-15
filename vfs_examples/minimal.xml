@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf-8'?>
+<filesystem>
+  <directory name="/" permissions="755" owner="root" group="root">
+    <directory name="home" permissions="755" owner="root" group="root">
+      <directory name="user" permissions="755" owner="user" group="user">
+        <file name="hello.txt" permissions="644" owner="user" group="user">
+          <content encoding="text">Hello, World!
+</content>
+        </file>
+      </directory>
+    </directory>
+  </directory>
+</filesystem>

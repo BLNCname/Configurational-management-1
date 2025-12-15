@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='utf-8'?>
+<filesystem>
+  <directory name="/" permissions="755" owner="root" group="root">
+    <directory name="home" permissions="755" owner="root" group="root">
+      <directory name="user" permissions="755" owner="user" group="user">
+        <directory name="documents" permissions="755" owner="user" group="user">
+          <directory name="work" permissions="755" owner="user" group="user">
+            <file name="report.txt" permissions="644" owner="user" group="user">
+              <content encoding="text">Отчет за 2024 год
+Раздел 1
+Раздел 2
+</content>
+            </file>
+            <directory name="archive" permissions="755" owner="user" group="user">
+              <file name="old_report.txt" permissions="644" owner="user" group="user">
+                <content encoding="text">Старый отчет
+</content>
+              </file>
+            </directory>
+          </directory>
+          <directory name="personal" permissions="700" owner="user" group="user">
+            <file name="notes.txt" permissions="600" owner="user" group="user">
+              <content encoding="text">Личные заметки
+</content>
+            </file>
+          </directory>
+        </directory>
+        <directory name="projects" permissions="755" owner="user" group="user">
+          <directory name="python" permissions="755" owner="user" group="user">
+            <file name="main.py" permissions="755" owner="user" group="user">
+              <content encoding="text">#!/usr/bin/env python3
+print("Hello, World!")
+</content>
+            </file>
+          </directory>
+        </directory>
+        <file name="readme.txt" permissions="644" owner="user" group="user">
+          <content encoding="text">Домашняя директория пользователя
+</content>
+        </file>
+      </directory>
+    </directory>
+    <directory name="etc" permissions="755" owner="root" group="root">
+      <directory name="config.d" permissions="755" owner="root" group="root">
+        <file name="app.conf" permissions="644" owner="root" group="root">
+          <content encoding="text">port=8080
+host=localhost
+</content>
+        </file>
+      </directory>
+    </directory>
+    <directory name="var" permissions="755" owner="root" group="root">
+      <directory name="log" permissions="755" owner="root" group="root">
+        <file name="system.log" permissions="644" owner="root" group="root">
+          <content encoding="text">2024-01-01 10:00:00 System started
+2024-01-01 10:01:00 Service initialized
+2024-01-01 10:02:00 Ready to accept connections
+</content>
+        </file>
+      </directory>
+    </directory>
+  </directory>
+</filesystem>

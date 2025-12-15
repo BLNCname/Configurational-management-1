@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<filesystem>
+  <directory name="/" permissions="755" owner="root" group="root">
+    <directory name="home" permissions="755" owner="root" group="root">
+      <directory name="user" permissions="755" owner="user" group="user">
+        <file name="document.txt" permissions="644" owner="user" group="user">
+          <content encoding="text">Это тестовый документ.
+Вторая строка.
+Третья строка.
+</content>
+        </file>
+        <file name="script.sh" permissions="755" owner="user" group="user">
+          <content encoding="text">#!/bin/bash
+echo "Hello from script!"
+</content>
+        </file>
+        <file name=".hidden" permissions="644" owner="user" group="user">
+          <content encoding="text">Это скрытый файл
+</content>
+        </file>
+      </directory>
+    </directory>
+    <directory name="etc" permissions="755" owner="root" group="root">
+      <file name="config.conf" permissions="644" owner="root" group="root">
+        <content encoding="text">key=value
+debug=true
+</content>
+      </file>
+    </directory>
+    <directory name="tmp" permissions="777" owner="root" group="root">
+      <file name="temp.log" permissions="666" owner="user" group="user">
+        <content encoding="text">Temporary log file
+</content>
+      </file>
+    </directory>
+  </directory>
+</filesystem>
