@@ -1,0 +1,34 @@
+# Тестовый скрипт для команды chmod (Этап 5)
+
+# Показываем текущие права
+ls -l /home/user
+
+# Добавляем права на выполнение для владельца
+chmod u+x /home/user/welcome.txt
+ls -l /home/user/welcome.txt
+
+# Убираем права на запись для группы и остальных
+chmod go-w /home/user/welcome.txt
+ls -l /home/user/welcome.txt
+
+# Добавляем права на чтение для всех
+chmod a+r /home/user/.bashrc
+ls -l /home/user/.bashrc
+
+# Комбинированное изменение
+chmod u+rwx,g-w,o+r /home/user/welcome.txt
+ls -l /home/user/welcome.txt
+
+# Численный формат (опциональный)
+chmod 755 /home/user/welcome.txt
+ls -l /home/user/welcome.txt
+
+chmod 644 /home/user/welcome.txt
+ls -l /home/user/welcome.txt
+
+# Проверка ошибок
+chmod u+x /nonexistent
+chmod invalidmode /home/user/welcome.txt
+
+# Финальная проверка
+ls -la /home/user

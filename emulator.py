@@ -6,31 +6,59 @@ import platform
 import getpass
 import socket
 from parser import CommandParser
+from config import Config
+from script_runner import ScriptRunner
+from vfs import VFS
+from vfs_loader import VFSLoader
 from commands.ls import LsCommand
 from commands.cd import CdCommand
 from commands.exit import ExitCommand
+from commands.whoami import WhoamiCommand
+from commands.tail import TailCommand
+from commands.tree import TreeCommand
+from commands.chmod import ChmodCommand
 
 
 class ShellEmulator:
     """Эмулятор командной оболочки UNIX с графическим интерфейсом."""
 
-    def __init__(self):
-        """Инициализация эмулятора."""
+    def __init__(self, config=None):
+        """Инициализация эмулятора.
+
+        Args:
+            config: Объект конфигурации (Config)
+        """
+        self.config = config if config else Config()
         self.running = True
         self.username = getpass.getuser()
         self.hostname = socket.gethostname()
-        self.current_dir = "/"
+
+        # Инициализация VFS
+        if self.config.vfs_path:
+            self.vfs = VFSLoader.load_from_xml(self.config.vfs_path, self.username)
+        else:
+            self.vfs = VFSLoader.create_default_vfs(self.username)
+
+        # Устанавливаем текущую директорию в домашнюю
+        self.vfs.change_directory(f"/home/{self.username}")
 
         # Инициализация команд
         self.commands = {}
         self._register_commands()
+
+        # Script runner
+        self.script_runner = ScriptRunner(self)
 
         # Инициализация GUI
         self._init_gui()
 
     def _register_commands(self):
         """Регистрация всех доступных команд."""
-        command_classes = [LsCommand, CdCommand, ExitCommand]
+        command_classes = [
+            LsCommand, CdCommand, ExitCommand,
+            WhoamiCommand, TailCommand, TreeCommand,
+            ChmodCommand
+        ]
         for cmd_class in command_classes:
             cmd = cmd_class(self)
             self.commands[cmd.name] = cmd
@@ -94,7 +122,15 @@ class ShellEmulator:
 
     def _get_prompt(self):
         """Получить строку приглашения командной строки."""
-        return f"[{self.username}@{self.hostname} {self.current_dir}]$ "
+        current_dir = self.vfs.get_current_directory()
+        # Сокращаем путь если это домашняя директория
+        if current_dir.startswith(f"/home/{self.username}"):
+            display_dir = "~" + current_dir[len(f"/home/{self.username}"):]
+            if not display_dir or display_dir == "~":
+                display_dir = "~"
+        else:
+            display_dir = current_dir
+        return f"[{self.username}@{self.hostname} {display_dir}]$ "
 
     def _update_prompt(self):
         """Обновить строку приглашения."""
@@ -142,7 +178,7 @@ class ShellEmulator:
 
     def _execute_command(self, command_line):
         """
-        Выполнить введенную команду.
+        Выполнить введенную команду с выводом в GUI.
 
         Args:
             command_line (str): Строка с командой
@@ -161,6 +197,29 @@ class ShellEmulator:
                 self._print_output(f"Ошибка выполнения команды: {e}")
         else:
             self._print_output(f"{command}: команда не найдена")
+
+    def _execute_command_silent(self, command_line):
+        """
+        Выполнить команду без вывода в GUI (для скриптов).
+        Вывод идет в консоль.
+
+        Args:
+            command_line (str): Строка с командой
+        """
+        command, args = CommandParser.parse(command_line)
+
+        if command is None:
+            return
+
+        if command in self.commands:
+            try:
+                result = self.commands[command].execute(args)
+                if result:
+                    print(result)
+            except Exception as e:
+                print(f"Ошибка выполнения команды: {e}")
+        else:
+            print(f"{command}: команда не найдена")
 
     def _history_up(self, event):
         """Обработчик стрелки вверх - предыдущая команда из истории."""
@@ -181,12 +240,25 @@ class ShellEmulator:
 
     def run(self):
         """Запустить эмулятор."""
+        # Выполнить стартовый скрипт если указан
+        if self.config.startup_script:
+            # Откладываем выполнение скрипта, чтобы GUI успел загрузиться
+            self.root.after(100, lambda: self.script_runner.run_script(self.config.startup_script))
+
         self.root.mainloop()
 
 
 def main():
     """Главная функция."""
-    emulator = ShellEmulator()
+    # Парсим аргументы командной строки
+    config = Config.parse_args()
+
+    # Выводим отладочную информацию если включен режим отладки
+    if config.debug:
+        config.print_debug_info()
+
+    # Создаем и запускаем эмулятор
+    emulator = ShellEmulator(config)
     emulator.run()
 
 

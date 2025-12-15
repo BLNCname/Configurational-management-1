@@ -1,0 +1,46 @@
+# Тестовый скрипт для основных команд (Этап 4)
+
+# Проверка whoami
+whoami
+
+# Проверка ls в различных режимах
+ls
+ls -l
+ls -a
+ls -la
+
+# Проверка cd с различными путями
+cd /
+ls
+cd /home
+ls
+cd ~
+ls
+
+# Относительные пути
+cd ..
+ls
+cd user
+ls
+
+# Проверка ls для конкретных путей
+ls /etc
+ls /home/user
+
+# Проверка tree
+tree
+tree /home
+
+# Создадим файл с несколькими строками для проверки tail
+# (файлы уже должны быть в VFS примерах)
+
+# Проверка tail
+tail /var/log/system.log
+tail -n 2 /var/log/system.log
+tail /home/user/welcome.txt
+
+# Ошибки
+cd /nonexistent
+ls /nonexistent
+tail /nonexistent.txt
+tree /notadir.txt
