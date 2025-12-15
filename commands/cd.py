@@ -18,7 +18,11 @@ class CdCommand(Command):
         """Выполнить команду cd."""
         # Если аргументов нет, переходим в домашнюю директорию
         if not args:
-            target_path = f"/home/{self.emulator.username}"
+            # Используем VFS username, так как он может отличаться от системного
+            target_path = f"/home/{self.emulator.vfs.username}"
+            # Если такой директории нет, пробуем /home/user
+            if not self.emulator.vfs.get_node(target_path):
+                target_path = "/home/user"
         else:
             target_path = args[0]
 

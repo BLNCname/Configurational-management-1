@@ -35,12 +35,23 @@ class ShellEmulator:
 
         # Инициализация VFS
         if self.config.vfs_path:
-            self.vfs = VFSLoader.load_from_xml(self.config.vfs_path, self.username)
+            # При загрузке из XML всегда используем "user" как username
+            self.vfs = VFSLoader.load_from_xml(self.config.vfs_path, "user")
         else:
             self.vfs = VFSLoader.create_default_vfs(self.username)
 
         # Устанавливаем текущую директорию в домашнюю
-        self.vfs.change_directory(f"/home/{self.username}")
+        # Используем username из VFS, а не системный
+        home_dir = f"/home/{self.vfs.username}"
+        if not self.vfs.get_node(home_dir):
+            # Если нет /home/username, пробуем /home/user
+            home_dir = "/home/user"
+
+        if self.vfs.get_node(home_dir):
+            self.vfs.change_directory(home_dir)
+        else:
+            # Fallback to root if home doesn't exist
+            self.vfs.change_directory("/")
 
         # Инициализация команд
         self.commands = {}
@@ -124,13 +135,15 @@ class ShellEmulator:
         """Получить строку приглашения командной строки."""
         current_dir = self.vfs.get_current_directory()
         # Сокращаем путь если это домашняя директория
-        if current_dir.startswith(f"/home/{self.username}"):
-            display_dir = "~" + current_dir[len(f"/home/{self.username}"):]
+        # Используем vfs.username, так как он может отличаться от системного username
+        vfs_home = f"/home/{self.vfs.username}"
+        if current_dir.startswith(vfs_home):
+            display_dir = "~" + current_dir[len(vfs_home):]
             if not display_dir or display_dir == "~":
                 display_dir = "~"
         else:
             display_dir = current_dir
-        return f"[{self.username}@{self.hostname} {display_dir}]$ "
+        return f"[{self.vfs.username}@{self.hostname} {display_dir}]$ "
 
     def _update_prompt(self):
         """Обновить строку приглашения."""
