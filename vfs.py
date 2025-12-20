@@ -18,10 +18,46 @@ class VFSNode:
             group: Группа
         """
         self.name = name
-        self.permissions = permissions
+        self._permissions = self._validate_permissions(permissions)
         self.owner = owner
         self.group = group
         self.modified_time = datetime.now()
+
+    @staticmethod
+    def _validate_permissions(permissions):
+        """
+        Валидация прав доступа.
+
+        Args:
+            permissions: Строка прав доступа
+
+        Returns:
+            str: Валидированная строка прав доступа
+
+        Raises:
+            ValueError: Если формат прав некорректен
+        """
+        if not isinstance(permissions, str):
+            permissions = str(permissions)
+
+        if len(permissions) != 3:
+            raise ValueError(f"Права доступа должны состоять из 3 цифр, получено: '{permissions}'")
+
+        for digit in permissions:
+            if not digit.isdigit() or int(digit) > 7:
+                raise ValueError(f"Каждая цифра прав должна быть от 0 до 7, получено: '{permissions}'")
+
+        return permissions
+
+    @property
+    def permissions(self):
+        """Получить права доступа."""
+        return self._permissions
+
+    @permissions.setter
+    def permissions(self, value):
+        """Установить права доступа с валидацией."""
+        self._permissions = self._validate_permissions(value)
 
     def is_directory(self):
         """Проверить, является ли узел директорией."""

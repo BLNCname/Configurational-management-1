@@ -73,9 +73,9 @@ class TreeCommand(Command):
                 # Рекурсивно обходим поддиректорию
                 self._build_tree(child, prefix + extension, lines, is_last_child)
             else:
-                # Исполняемые файлы помечаем звездочкой
-                if child.permissions.endswith('7') or child.permissions.endswith('5') or \
-                   child.permissions.endswith('3') or child.permissions.endswith('1'):
+                # Исполняемые файлы помечаем звездочкой - проверяем бит execute у любой группы
+                is_executable = any(int(digit) & 1 for digit in child.permissions if digit.isdigit())
+                if is_executable:
                     lines.append(f"{prefix}{connector}{name}*")
                 else:
                     lines.append(f"{prefix}{connector}{name}")

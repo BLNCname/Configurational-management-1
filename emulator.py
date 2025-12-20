@@ -17,6 +17,7 @@ from commands.whoami import WhoamiCommand
 from commands.tail import TailCommand
 from commands.tree import TreeCommand
 from commands.chmod import ChmodCommand
+from commands.pwd import PwdCommand
 
 
 class ShellEmulator:
@@ -30,7 +31,6 @@ class ShellEmulator:
         """
         self.config = config if config else Config()
         self.running = True
-        self.username = getpass.getuser()
         self.hostname = socket.gethostname()
 
         # Инициализация VFS
@@ -38,7 +38,9 @@ class ShellEmulator:
             # При загрузке из XML всегда используем "user" как username
             self.vfs = VFSLoader.load_from_xml(self.config.vfs_path, "user")
         else:
-            self.vfs = VFSLoader.create_default_vfs(self.username)
+            # Для VFS по умолчанию используем системное имя пользователя
+            system_username = getpass.getuser()
+            self.vfs = VFSLoader.create_default_vfs(system_username)
 
         # Устанавливаем текущую директорию в домашнюю
         # Используем username из VFS, а не системный
@@ -68,7 +70,7 @@ class ShellEmulator:
         command_classes = [
             LsCommand, CdCommand, ExitCommand,
             WhoamiCommand, TailCommand, TreeCommand,
-            ChmodCommand
+            ChmodCommand, PwdCommand
         ]
         for cmd_class in command_classes:
             cmd = cmd_class(self)
@@ -77,7 +79,7 @@ class ShellEmulator:
     def _init_gui(self):
         """Инициализация графического интерфейса."""
         self.root = tk.Tk()
-        self.root.title(f"Эмулятор - [{self.username}@{self.hostname}]")
+        self.root.title(f"Эмулятор - [{self.vfs.username}@{self.hostname}]")
         self.root.geometry("800x600")
 
         # Текстовое поле для вывода
@@ -128,7 +130,7 @@ class ShellEmulator:
         # Приветственное сообщение
         self._print_output("Эмулятор командной оболочки UNIX")
         self._print_output(f"Система: {platform.system()} {platform.release()}")
-        self._print_output(f"Пользователь: {self.username}@{self.hostname}")
+        self._print_output(f"Пользователь: {self.vfs.username}@{self.hostname}")
         self._print_output("Введите 'exit' для выхода\n")
 
     def _get_prompt(self):

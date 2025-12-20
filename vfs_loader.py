@@ -181,14 +181,18 @@ class VFSLoader:
             # Сохраняем содержимое
             if node.content:
                 content_elem = ET.SubElement(file_elem, 'content')
-                # Используем base64 если есть непечатные символы
-                try:
-                    node.content.encode('ascii')
-                    content_elem.text = node.content
-                    content_elem.set('encoding', 'text')
-                except UnicodeEncodeError:
+                # Используем base64 только если есть непечатные символы (не UTF-8 текст)
+                # Проверяем наличие непечатных символов (кроме \n, \r, \t)
+                has_binary = any(ord(c) < 32 and c not in '\n\r\t' for c in node.content)
+
+                if has_binary:
+                    # Бинарные данные - используем base64
                     content_elem.text = base64.b64encode(node.content.encode('utf-8')).decode('ascii')
                     content_elem.set('encoding', 'base64')
+                else:
+                    # Текстовые данные (включая UTF-8) - сохраняем как текст
+                    content_elem.text = node.content
+                    content_elem.set('encoding', 'text')
 
     @staticmethod
     def _indent(elem, level=0):

@@ -79,8 +79,9 @@ class LsCommand(Command):
                 # Директории выделяем (в GUI цвет не поддерживается, но можем добавить /)
                 result.append(name)
             elif child and child.is_file():
-                # Исполняемые файлы выделяем
-                if child.permissions.endswith('7') or child.permissions.endswith('5') or child.permissions.endswith('3') or child.permissions.endswith('1'):
+                # Исполняемые файлы выделяем - проверяем бит execute у любой группы (user/group/other)
+                is_executable = any(int(digit) & 1 for digit in child.permissions if digit.isdigit())
+                if is_executable:
                     result.append(name + '*')
                 else:
                     result.append(name)

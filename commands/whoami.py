@@ -16,4 +16,4 @@ class WhoamiCommand(Command):
 
     def execute(self, args):
         """Выполнить команду whoami."""
-        return self.emulator.username
+        return self.emulator.vfs.username
